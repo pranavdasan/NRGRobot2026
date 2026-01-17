@@ -9,10 +9,10 @@ package frc.robot;
 
 import com.nrg948.dashboard.annotations.DashboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.Autos;
 import frc.robot.commands.DriveUsingController;
 import frc.robot.subsystems.Swerve;
 
@@ -23,6 +23,8 @@ import frc.robot.subsystems.Swerve;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
+  @DashboardTab private final Autos autos = new Autos(this);
 
   public enum RobotSelector {
     PracticeRobot2025,
@@ -40,6 +42,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(new DriveUsingController(drivetrain, driverController));
     // Configure the trigger bindings
     configureBindings();
+
     RobotContainerDashboardTabs.bind(this);
   }
 
@@ -63,6 +66,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return autos.getAutonomous();
   }
 }
