@@ -27,6 +27,9 @@ public class Subsystems {
   @DashboardTab(title = "Intake")
   public final Intake intake = new Intake();
 
+  @DashboardTab(title = "IntakeArm")
+  public final IntakeArm intakeArm = new IntakeArm();
+
   @DashboardTab(title = "Shooter")
   public final Shooter shooter = new Shooter();
 
@@ -52,7 +55,7 @@ public class Subsystems {
 
   public Subsystems() {
     // Add all manipulator subsystems to the `manipulators` list.
-    var manipulators = new ArrayList<Subsystem>(Arrays.asList(intake, shooter, indexer));
+    var manipulators = new ArrayList<Subsystem>(Arrays.asList(intake, shooter, indexer, intakeArm));
 
     // Add all non-manipulator subsystems to the `all` list.
     var all = new ArrayList<Subsystem>(Arrays.asList(drivetrain));
