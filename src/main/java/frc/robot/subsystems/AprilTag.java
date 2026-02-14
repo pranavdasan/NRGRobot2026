@@ -58,23 +58,11 @@ public class AprilTag extends SubsystemBase {
   private static final double LAST_RESULT_TIMEOUT = 0.1;
 
   // TODO: measure ALL camera rotations and transforms for the 2026 robot.
-  private static final Rotation3d FRONT_RIGHT_CAMERA_ROTATION =
-      new Rotation3d(0, Math.toRadians(-22), Math.toRadians(16.8));
-  public static final Transform3d ROBOT_TO_FRONT_RIGHT_CAMERA =
-      new Transform3d(new Translation3d(+0.088, -0.093, +0.362), FRONT_RIGHT_CAMERA_ROTATION);
-
-  private static final Rotation3d FRONT_LEFT_CAMERA_ROTATION =
-      new Rotation3d(0, Math.toRadians(-22), Math.toRadians(-16.8));
+  private static final Rotation3d FRONT_CAMERA_ROTATION = new Rotation3d(0, Math.toRadians(-16), 0);
   public static final Transform3d ROBOT_TO_FRONT_LEFT_CAMERA =
-      new Transform3d(new Translation3d(+0.239, +0.287, +0.191), FRONT_LEFT_CAMERA_ROTATION);
-
-  private static final Rotation3d BACK_LEFT_CAMERA_ROTATION = new Rotation3d(0, 0, 0);
-  public static final Transform3d ROBOT_TO_BACK_LEFT_CAMERA =
-      new Transform3d(new Translation3d(0, 0, 0), BACK_LEFT_CAMERA_ROTATION);
-
-  private static final Rotation3d BACK_RIGHT_CAMERA_ROTATION = new Rotation3d(0, 0, 0);
-  public static final Transform3d ROBOT_TO_BACK_RIGHT_CAMERA =
-      new Transform3d(new Translation3d(0, 0, 0), BACK_RIGHT_CAMERA_ROTATION);
+      new Transform3d(new Translation3d(+0.105, +0.259, +0.668), FRONT_CAMERA_ROTATION);
+  public static final Transform3d ROBOT_TO_FRONT_RIGHT_CAMERA =
+      new Transform3d(new Translation3d(+0.105, -0.262, +0.668), FRONT_CAMERA_ROTATION);
 
   /**
    * A single camera's parameters.
@@ -94,21 +82,22 @@ public class AprilTag extends SubsystemBase {
    * @param backLeft The back left camera parameters.
    */
   public record VisionParameters(
-      Optional<CameraParameters> frontRight,
       Optional<CameraParameters> frontLeft,
-      Optional<CameraParameters> backRight,
-      Optional<CameraParameters> backLeft) {}
+      Optional<CameraParameters> frontRight,
+      Optional<CameraParameters> backLeft,
+      Optional<CameraParameters> backRight) {}
 
+  // TODO: Find streamPorts for cameras on practice robot
   public static final VisionParameters PRACTICE_VISION_PARAMS =
-      new VisionParameters(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+      new VisionParameters(
+          Optional.of(new CameraParameters("FrontLeftCamera", ROBOT_TO_FRONT_LEFT_CAMERA, 1182)),
+          Optional.of(new CameraParameters("FrontRightCamera", ROBOT_TO_FRONT_RIGHT_CAMERA, 1184)),
+          Optional.empty(),
+          Optional.empty());
   public static final VisionParameters COMPETITION_VISION_PARAMS =
       new VisionParameters(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
   public static final VisionParameters ALPHA_VISION_PARAMS =
-      new VisionParameters(
-          Optional.of(new CameraParameters("FrontRightCamera", ROBOT_TO_FRONT_RIGHT_CAMERA, 1182)),
-          Optional.of(new CameraParameters("FrontLeftCamera", ROBOT_TO_FRONT_LEFT_CAMERA, 1184)),
-          Optional.empty(),
-          Optional.empty());
+      new VisionParameters(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
 
   public static final VisionParameters PARAMETERS =
       RobotPreferences.ROBOT_TYPE
