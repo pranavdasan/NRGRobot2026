@@ -27,6 +27,7 @@ public final class Constants {
     public static final double MAX_BATTERY_VOLTAGE = 12.0;
     public static final double WHEEL_DIAMETER = Units.inchesToMeters(3.9);
     public static final int LED_COUNT = 77; // TODO: determine LED count
+    public static final double PERIODIC_INTERVAL = 0.02;
 
     public static class LEDSegment {
       public static final int STATUS_FIRST_LED = 0;
@@ -47,6 +48,8 @@ public final class Constants {
       public static final int SHOOTER_UPPER_RIGHT_ID = 18;
       public static final int SHOOTER_LOWER_LEFT_ID = 17;
       public static final int SHOOTER_UPPER_LEFT_ID = 19;
+      public static final int CLIMBER_ELEVATOR_LEFT_ID = 63;
+      public static final int CLIMBER_ELEVATOR_RIGHT_ID = 65;
     }
   }
 
