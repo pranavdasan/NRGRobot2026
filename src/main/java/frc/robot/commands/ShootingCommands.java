@@ -10,32 +10,41 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Indexer;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Subsystems;
+import frc.robot.subsystems.Swerve;
 
 public final class ShootingCommands {
 
-  // TODO: Implement method that fetches goal velocity for indexer.
   public static Command shoot(Subsystems subsystem) {
     Indexer indexer = subsystem.indexer;
-    return Commands.runOnce(() -> indexer.setShootingVelocity(), indexer);
+    Shooter shooter = subsystem.shooter;
+    Swerve drivetrain = subsystem.drivetrain;
+    Intake intake = subsystem.intake;
+
+    return Commands.parallel(
+            Commands.run(() -> shooter.setGoalDistance(drivetrain.getDistanceToHub()), shooter),
+            Commands.sequence(
+                Commands.idle(indexer).until(shooter::atOrAboveGoal),
+                Commands.runOnce(indexer::feed, indexer),
+                Commands.runOnce(intake::intake, intake),
+                Commands.idle(intake, indexer)))
+        .finallyDo(
+            () -> {
+              shooter.disable();
+              indexer.disable();
+              intake.disable();
+            });
   }
 
-  // For testing shooter speeds. After interpolation table is done and implemented, remove the
-  // methods below along with its button bindings in RobotContainer.java.
-
-  public static Command setShooterVelocityToSeven(Subsystems subsystems) {
+  public static Command setShooterVelocity(Subsystems subsystems, double velocity) {
     Shooter shooter = subsystems.shooter;
-    return Commands.runOnce(() -> shooter.setGoalVelocity(7.0), shooter);
+    return Commands.runOnce(() -> shooter.setGoalVelocity(velocity), shooter);
   }
 
-  public static Command decreaseShooterVelocityByPointTwo(Subsystems subsystems) {
+  public static Command addShooterVelocity(Subsystems subsystems, double increment) {
     Shooter shooter = subsystems.shooter;
-    return Commands.runOnce(() -> shooter.addGoalVelocity(-0.2), shooter);
-  }
-
-  public static Command increaseShooterVelocityByPointTwo(Subsystems subsystems) {
-    Shooter shooter = subsystems.shooter;
-    return Commands.runOnce(() -> shooter.addGoalVelocity(0.2), shooter);
+    return Commands.runOnce(() -> shooter.addGoalVelocity(increment), shooter);
   }
 }

@@ -10,6 +10,7 @@ package frc.robot;
 import com.nrg948.dashboard.annotations.DashboardTab;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -17,12 +18,14 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.DriveAutoRotation;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveUsingController;
+import frc.robot.commands.IndexerCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.LEDCommands;
 import frc.robot.commands.ShootingCommands;
 import frc.robot.subsystems.IntakeArm;
 import frc.robot.subsystems.Subsystems;
 import frc.robot.util.MatchTime;
+import frc.robot.util.MotorIdleMode;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -86,7 +89,12 @@ public class RobotContainer {
         .whileTrue(LEDCommands.transitionToEndgameModeLED(subsystems));
     new Trigger(MatchTime::isEndgame).whileTrue(LEDCommands.endgameLED(subsystems));
 
-    driverController.a().whileTrue(new DriveAutoRotation(subsystems.drivetrain, driverController));
+    driverController
+        .a()
+        .whileTrue(
+            Commands.parallel(
+                new DriveAutoRotation(subsystems.drivetrain, driverController),
+                ShootingCommands.shoot(subsystems)));
 
     manipulatorController
         .rightBumper()
@@ -106,16 +114,17 @@ public class RobotContainer {
         .b()
         .onTrue(IntakeCommands.setIntakeArmAngle(IntakeArm.EXTENDED_ANGLE, subsystems));
 
+    manipulatorController
+        .leftBumper()
+        .whileTrue(IndexerCommands.feed(subsystems))
+        .onFalse(IndexerCommands.disableIndexer(subsystems));
+
     // Experimental, remove after shooter interpolation table is made and implemented. Up and left
     // is increase and decrease upper shooter velocities respectively. Down and right is increase
     // and decrease lower shooter velocities respectively.
-    manipulatorController
-        .povUp()
-        .onTrue(ShootingCommands.increaseShooterVelocityByPointTwo(subsystems));
-    manipulatorController
-        .povDown()
-        .onTrue(ShootingCommands.decreaseShooterVelocityByPointTwo(subsystems));
-    manipulatorController.back().onTrue(ShootingCommands.setShooterVelocityToSeven(subsystems));
+    manipulatorController.povUp().onTrue(ShootingCommands.addShooterVelocity(subsystems, 1.0));
+    manipulatorController.povDown().onTrue(ShootingCommands.addShooterVelocity(subsystems, -1.0));
+    manipulatorController.povLeft().onTrue(ShootingCommands.setShooterVelocity(subsystems, 15));
   }
 
   /**
@@ -125,6 +134,11 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autos.getAutonomous();
+  }
+
+  public void disableInit() {
+    subsystems.disableManipulators();
+    subsystems.setIdleMode(MotorIdleMode.COAST);
   }
 
   public void periodic() {
